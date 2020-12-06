@@ -1,23 +1,62 @@
-const { Note } = require("../db/models");
 const SequelizeSlugify = require("sequelize-slugify");
+const Notebook = require("../db/models/Notebook");
+const Note = require("../db/models/Note");
 
-exports.noteCreate = async (req, res) => {
+exports.fetchNote = async (noteId, next) => {
   try {
-    const newNote = await Note.create(req.body);
-    res.status(201).json(newNote);
+    const note = await Note.findByPk(noteId);
+    return note;
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    next(error);
   }
 };
 
-exports.noteList = async (req, res) => {
+exports.noteList = async (req, res, next) => {
   try {
     const notes = await Note.findAll({
-      attributes: { exclude: ["createdAt", "updatedAt"] },
+      attributes: { exclude: ["notebookId", "createdAt", "updatedAt"] },
+      include: {
+        model: Notebook,
+        as: "notebook",
+        attributes: ["name"],
+      },
     });
     console.log("notes", notes);
     res.json(notes);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    next(error);
+  }
+};
+
+// exports.noteCreate = async (req, res, next) => {
+//   try {
+//     if (req.file) {
+//       req.body.image = `http://${req.get("host")}/media/${req.file.filename}`;
+//     }
+//     const newNote = await Note.create(req.body);
+//     res.status(201).json(newNote);
+//   } catch (error) {
+//     next(error);
+//   }
+// };
+
+exports.noteUpdate = async (req, res, next) => {
+  try {
+    if (req.file) {
+      req.body.image = `http://${req.get("host")}/media/${req.file.filename}`;
+    }
+    await req.note.update(req.body);
+    res.status(204).end();
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.noteDelete = async (req, res, next) => {
+  try {
+    await req.note.destroy();
+    res.status(204).end();
+  } catch (err) {
+    next(error);
   }
 };

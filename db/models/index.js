@@ -46,6 +46,7 @@ db.Sequelize = Sequelize;
 db.Notebook.hasMany(db.Note, {
   foreignKey: { fieldName: "notebookId", allowNull: false },
 });
+
 db.Note.belongsTo(db.Notebook, {
   as: "notebook",
   foreignKey: { fieldName: "notebookId" },

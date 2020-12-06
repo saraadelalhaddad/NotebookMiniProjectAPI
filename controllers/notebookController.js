@@ -1,4 +1,4 @@
-const { Notebook } = require("../db/models");
+const { Notebook, Note } = require("../db/models");
 const SequelizeSlugify = require("sequelize-slugify");
 
 exports.fetchNotebook = async (notebookId, next) => {
@@ -17,7 +17,6 @@ exports.notebookList = async (req, res, next) => {
       include: [
         {
           model: Note,
-          as: "notes",
           attributes: ["id"],
         },
       ],
@@ -48,7 +47,7 @@ exports.notebookUpdate = async (req, res, next) => {
     }
     await req.notebook.update(req.body);
     res.status(204).end();
-  } catch (error) {
+  } catch (err) {
     next(error);
   }
 };
@@ -67,7 +66,7 @@ exports.noteCreate = async (req, res, next) => {
     if (req.file) {
       req.body.image = `http://${req.get("host")}/media/${req.file.filename}`;
     }
-    req.body.notebookId = req.notebookId;
+    req.body.notebookId = req.notebook.id;
     const newNote = await Note.create(req.body);
     res.status(201).json(newNote);
   } catch (error) {

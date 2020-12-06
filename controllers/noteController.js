@@ -1,6 +1,5 @@
 const SequelizeSlugify = require("sequelize-slugify");
-const Notebook = require("../db/models/Notebook");
-const Note = require("../db/models/Note");
+const { Notebook, Note } = require("../db/models");
 
 exports.fetchNote = async (noteId, next) => {
   try {
@@ -47,7 +46,7 @@ exports.noteUpdate = async (req, res, next) => {
     }
     await req.note.update(req.body);
     res.status(204).end();
-  } catch (error) {
+  } catch (err) {
     next(error);
   }
 };
